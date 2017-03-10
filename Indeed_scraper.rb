@@ -1,11 +1,13 @@
 require 'pry'
 require 'nokogiri'
 require 'open-uri'
+require 'net/http'
 
 DATA_DIR = "html_pages/indeed"
 # Dir.mkdir(DATA_DIR) unless File.exists?(DATA_DIR)
 
-TITLE_BLACK_LIST = %w(senior sr. architect)
+TITLE_BLACK_LIST = ['senior', 'sr.', 'architect']
+DESCRIPTION_BLACK_LIST = ['3+ years']
 JOB_SEARCH = "Ruby developer"
 LOCATION = "Los Angeles, CA"
 
@@ -37,14 +39,16 @@ job_listing_nodeset = page.css('h2.jobtitle a.turnstileLink') # This does not fi
 
 
 # Collect URLs of jobs whose titles pass the Filter test
-url_list = job_listing_nodeset.map do |job|
-  job["href"] unless TITLE_BLACK_LIST.any? { |bad_word| job["title"].downcase.include?(bad_word) }
+def create_url_array(nodeset)
+  nodeset.map do |job|
+    job["href"] unless TITLE_BLACK_LIST.any? { |bad_word| job["title"].downcase.include?(bad_word) }
+  end
 end
 
-p url_list
+p url_list = create_url_array(job_listing_nodeset)
 
-# Begin downloading the pages
-url_list = url_list[0..0]
+# Iterate through the pages
+url_list = url_list[2..2]
 url_list.each do |url|
   job_description_url = BASE_INDEED_URL + url
   local_fname = "#{DATA_DIR}/#{File.basename(url)}.html"
@@ -52,15 +56,16 @@ url_list.each do |url|
   begin
     # content = open(job_description_url, HEADERS_HASH).read
     content = Nokogiri::HTML(open(job_description_url))
+    # resp = Net::HTTP.get_response(URI.parse(job_description_url))
   rescue Exception => e
     puts "Error: #{e}"
     sleep 5
   else
-    header = content.css('div[data-tn-component=jobHeader]').to_html
-    job_summary = content.css('span#job_summary').to_html
+    header = content.css('div[data-tn-component=jobHeader]')
+    job_summary = content.css('span#job_summary')
     File.open(local_fname, 'w') do |file|
-      file.write(header)
-      file.write(job_summary)
+      file.write(header.to_html)
+      file.write(job_summary.to_html)
     end
     puts "\t...Success, saved to #{local_fname}"
   ensure
