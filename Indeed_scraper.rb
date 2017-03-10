@@ -22,22 +22,6 @@ puts "Querying #{FULL_URL}\n\n"
 page = Nokogiri::HTML(open(FULL_URL))
 job_listing_nodeset = page.css('h2.jobtitle a.turnstileLink') # This does not find the Sponsored Pages, since I think they are injected dynamically
 
-
-# I don't necessarily need the hash. I could just collect a list of URI's whose titles have already been filtered.
-# Then when I inspect job descriptions further and filter, I could only worry about the title then
-
-# filtered_hash = {}
-# i = 1;
-# job_listing_nodeset.each do |job|
-#   filtered_hash["listing #{i}"] = {
-#     "title" => job["title"], "href" => job["href"]
-#   } unless BLACK_LIST.any? { |bad_word| job["title"].downcase.include?(bad_word) }
-#   i += 1
-# end
-# p filtered_hash
-
-
-
 # Collect URLs of jobs whose titles pass the Filter test
 def create_url_array(nodeset)
   nodeset.map do |job|
