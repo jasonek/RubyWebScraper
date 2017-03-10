@@ -56,3 +56,8 @@ url_list.each do |url|
     sleep 2.0 + rand
   end  # done: begin/rescue
 end
+
+
+# redirect
+# https://www.indeed.com/rc/clk?jk=bdbcc2a3332a7d19&fccid=5afcb6023ba5ddcf
+# https://www.indeed.com/viewjob?jk=bdbcc2a3332a7d19&q=Ruby+developer&l=Los+Angeles%2C+CA
