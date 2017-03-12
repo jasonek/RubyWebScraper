@@ -3,6 +3,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'net/http'
 require_relative 'indeed_utils'
+require_relative 'indeed_db'
 
 DATA_DIR = "html_pages/indeed"
 # Dir.mkdir(DATA_DIR) unless File.exists?(DATA_DIR)
@@ -18,6 +19,9 @@ BASE_INDEED_URL = 'https://www.indeed.com/'
 FULL_URL =  BASE_INDEED_URL + "/jobs" + "?" + JOBTITLE_PARAM + "&" + LOCATION_PARAM
 
 HEADERS_HASH = {"User-Agent" => "Ruby/#{RUBY_VERSION}"}
+
+IndeedDB::create_DB('indeed.sqlite',JOB_SEARCH.gsub(/\s+/, ""))
+
 
 # Data structures to save results
 array_of_redirections = [] # TODO: Can then iterate through this list at the end.
