@@ -2,6 +2,7 @@ require 'pry'
 require 'nokogiri'
 require 'open-uri'
 require 'net/http'
+require_relative 'indeed_utils'
 
 DATA_DIR = "html_pages/indeed"
 # Dir.mkdir(DATA_DIR) unless File.exists?(DATA_DIR)
@@ -9,7 +10,7 @@ DATA_DIR = "html_pages/indeed"
 TITLE_BLACK_LIST = ['senior', 'sr.', 'architect']
 DESCRIPTION_BLACK_LIST = ['3+ years']
 JOB_SEARCH = "Ruby developer"
-LOCATION = "Los Angeles, CA"
+LOCATION = "Austin, TX"
 
 JOBTITLE_PARAM = URI.encode_www_form("q" => JOB_SEARCH)
 LOCATION_PARAM = URI.encode_www_form("l" => LOCATION)
@@ -18,23 +19,20 @@ FULL_URL =  BASE_INDEED_URL + "/jobs" + "?" + JOBTITLE_PARAM + "&" + LOCATION_PA
 
 HEADERS_HASH = {"User-Agent" => "Ruby/#{RUBY_VERSION}"}
 
+# Data structures to save results
+array_of_redirections = [] # TODO: Can then iterate through this list at the end.
+
+# Visible Code Begins Here
 puts "Querying #{FULL_URL}\n\n"
 page = Nokogiri::HTML(open(FULL_URL))
 job_listing_nodeset = page.css('h2.jobtitle a.turnstileLink') # This does not find the Sponsored Pages, since I think they are injected dynamically
 
-# Collect URLs of jobs whose titles pass the Filter test
-def create_url_array(nodeset)
-  nodeset.map do |job|
-    job["href"] unless TITLE_BLACK_LIST.any? { |bad_word| job["title"].downcase.include?(bad_word) }
-  end
-end
-
-p url_list = create_url_array(job_listing_nodeset)
+p url_list = IndeedUtils::create_url_array(job_listing_nodeset, TITLE_BLACK_LIST).compact # Remove Nil's
 
 # Iterate through the pages
-url_list = url_list[2..2]
+url_list = url_list[3..3]
 url_list.each do |url|
-  job_description_url = BASE_INDEED_URL + url
+  job_description_url = BASE_INDEED_URL + url + "&fromage=29&limit=50"
   local_fname = "#{DATA_DIR}/#{File.basename(url)}.html"
   puts "Retrieving #{job_description_url} ..."
   begin
@@ -42,22 +40,14 @@ url_list.each do |url|
     content = Nokogiri::HTML(open(job_description_url))
     # resp = Net::HTTP.get_response(URI.parse(job_description_url))
   rescue Exception => e
+    # binding.pry
+    array_of_redirections << e.to_s.partition('->')[-1] if e.class == RuntimeError # TODO redirections raise a RuntimeError, but so do other things
     puts "Error: #{e}"
     sleep 5
   else
-    header = content.css('div[data-tn-component=jobHeader]')
-    job_summary = content.css('span#job_summary')
-    File.open(local_fname, 'w') do |file|
-      file.write(header.to_html)
-      file.write(job_summary.to_html)
-    end
+    IndeedUtils::write_header_and_summary_to_file(content, local_fname)
     puts "\t...Success, saved to #{local_fname}"
   ensure
     sleep 2.0 + rand
   end  # done: begin/rescue
 end
-
-
-# redirect
-# https://www.indeed.com/rc/clk?jk=bdbcc2a3332a7d19&fccid=5afcb6023ba5ddcf
-# https://www.indeed.com/viewjob?jk=bdbcc2a3332a7d19&q=Ruby+developer&l=Los+Angeles%2C+CA
