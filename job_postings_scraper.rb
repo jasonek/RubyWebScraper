@@ -14,7 +14,7 @@ DATA_DIR = "html_pages/indeed"
 JOB_SEARCH = "Ruby developer"
 LOCATION = "Los Angeles, CA"
 
-# Create URLs
+# Create constants to contruct the URL
 JOBTITLE_PARAM = URI.encode_www_form("q" => JOB_SEARCH)
 LOCATION_PARAM = URI.encode_www_form("l" => LOCATION)
 BASE_INDEED_URL = 'https://www.indeed.com/'
@@ -27,14 +27,14 @@ DB = SQLite3::Database.open( DBNAME )
 TABLE = "postings"
 # DB.execute("CREATE TABLE #{TABLE}(job_title, company, location, job_summary,  junior_flag)")
 
-# Prepare variables and data structures before Loop
+# Prepare variables and data structures before the scraping Loop begins
 agent = Mechanize.new { |agent| agent.user_agent_alias = "Mac Safari" }
 puts "Querying #{SEARCH_URL}\n\n"
 html = agent.get(SEARCH_URL)
 results_array = []
 i = 2
 
-# Cycle through pages, downloading job description information
+# Cycle through pages, loading job description information into an array of hashes
 loop do
   # Search & Extract data
   next_page = html.link_with(:text => "#{i}")
@@ -49,7 +49,7 @@ loop do
 end
 p results_array.size
 
-# Save to DB
+# Save array of hashes to DB
 results_array.each do |record|
   IndeedDB::insert_postings(DB, TABLE, record)
 end

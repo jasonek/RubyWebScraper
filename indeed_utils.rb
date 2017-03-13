@@ -1,5 +1,4 @@
 module IndeedUtils
-
   def self.create_url_array(nodeset) # Collect URLs of jobs whose titles pass the Black List Filter
     nodeset.map { |job| job["href"] }#unless black_list.any? { |bad_word| job["title"].downcase.include?(bad_word) }
   end
@@ -37,11 +36,10 @@ module IndeedUtils
       return 'mid'
     end
   end
-
 end
 
-module IndeedDB
 
+module IndeedDB
   def self.insert_rubydeveloper(db, table, columns)
     insert_query = "INSERT INTO #{table}(job_title, company, location, job_summary, listing_url,  junior_flag) VALUES(?, ?, ?, ? ,? ,?)"
     db.execute(insert_query, columns[0], columns[1], columns[2], columns[3], columns[4], columns[5])
@@ -51,6 +49,4 @@ module IndeedDB
     insert_query = "INSERT INTO #{table}(job_title, company, location, job_summary, junior_flag) VALUES(?, ?, ? ,? ,?)"
     db.execute(insert_query, hash[:title], hash[:company], hash[:location], hash[:summary], hash[:junior_flag])
   end
-
-
 end
