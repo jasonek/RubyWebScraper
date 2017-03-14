@@ -40,7 +40,7 @@ end
 
 
 module IndeedDB
-  def self.insert_rubydeveloper(db, table, columns)
+  def self.insert_in_depth_listings(db, table, columns)
     insert_query = "INSERT INTO #{table}(job_title, company, location, job_summary, listing_url,  junior_flag) VALUES(?, ?, ?, ? ,? ,?)"
     db.execute(insert_query, columns[0], columns[1], columns[2], columns[3], columns[4], columns[5])
   end

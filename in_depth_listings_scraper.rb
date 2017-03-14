@@ -51,7 +51,7 @@ url_list.each do |url|
     sleep 5
   else
     columns_arr = IndeedUtils::extract_data_from_indeed(content, local_fname, job_description_url)
-    IndeedDB::insert(DB, TABLE, columns_arr)
+    IndeedDB::insert_in_depth_listings(DB, TABLE, columns_arr)
     puts "\t...Success, saved to database"
   ensure
     sleep 2.0 + rand

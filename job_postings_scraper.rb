@@ -1,7 +1,5 @@
-require 'pry'
 require 'nokogiri'
 require 'open-uri'
-require 'net/http'
 require 'sqlite3'
 require 'mechanize'
 require_relative 'indeed_utils'
@@ -14,7 +12,7 @@ DATA_DIR = "html_pages/indeed"
 JOB_SEARCH = "Ruby developer"
 LOCATION = "Los Angeles, CA"
 
-# Create constants to contruct the URL
+# Create constants to construct the URL
 JOBTITLE_PARAM = URI.encode_www_form("q" => JOB_SEARCH)
 LOCATION_PARAM = URI.encode_www_form("l" => LOCATION)
 BASE_INDEED_URL = 'https://www.indeed.com/'
@@ -27,7 +25,7 @@ DB = SQLite3::Database.open( DBNAME )
 TABLE = "postings"
 # DB.execute("CREATE TABLE #{TABLE}(job_title, company, location, job_summary,  junior_flag)")
 
-# Prepare variables and data structures before the scraping Loop begins
+# Prepare variables before the scraping Loop begins
 agent = Mechanize.new { |agent| agent.user_agent_alias = "Mac Safari" }
 puts "Querying #{SEARCH_URL}\n\n"
 html = agent.get(SEARCH_URL)
@@ -40,16 +38,15 @@ loop do
   next_page = html.link_with(:text => "#{i}")
   page = Nokogiri::HTML(html.body)
   jobs_nodeset = page.css('div.result')
-  data_list = IndeedUtils::extract_listing_data(jobs_nodeset, results_array).compact
+  IndeedUtils::extract_listing_data(jobs_nodeset, results_array).compact
 
-  # Increment and prepare for next round
+  # Increment and prepare for next round of the loop
   break unless next_page
   i += 1
   html = next_page.click
 end
-p results_array.size
 
-# Save array of hashes to DB
+# Save data to the DB by iterating through the array of hashes
 results_array.each do |record|
   IndeedDB::insert_postings(DB, TABLE, record)
 end
