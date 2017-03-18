@@ -26,7 +26,8 @@ DBNAME = "indeed.sqlite"
 # DB = SQLite3::Database.new( DBNAME )
 DB = SQLite3::Database.open( DBNAME )
 TABLE = "full_descriptions"
-# DB.execute("CREATE TABLE #{TABLE}(job_title, company, location, job_summary, listing_url,  junior_flag)")
+# DB.execute("CREATE TABLE #{TABLE}(title, company, location, description, url)")
+# DB.execute("DROP TABLE #{TABLE}")#{}"(title, company, location, description, url)")
 
 
 agent = Mechanize.new { |agent| agent.user_agent_alias = "Mac Safari" }
@@ -54,40 +55,41 @@ p url_list.count
 
 # Iterate through every job link, following through to their full description page, to then extract the full description
 url_list.each do |url|
-
   job_description_url = BASE_INDEED_URL + url
-  puts "Retrieving #{job_description_url} ..."
+  puts "Retrieving: #{job_description_url} ..."
   begin
     loop_agent = Mechanize.new
     loop_page = loop_agent.get(job_description_url)
     full_description_page = Nokogiri::HTML(loop_page.body)
-    post_redirect_url = loop_page.uri.to_s
-    domain = URI.parse(post_redirect_url).host
-    binding.pry
-    # full_description_page = Nokogiri::HTML(open(job_description_url))
+    url_after_redirect = loop_page.uri.to_s
+    domain = URI.parse(url_after_redirect).host
   rescue Exception => e
-    # array_of_redirections << e.to_s.partition('->')[-1] if e.class == RuntimeError # TODO redirections raise a RuntimeError, but so do other things. Need a better filter for redirections. Maybe check for Status: 302 ?
     puts "Error: #{e}"
     sleep 5
   else
-    if host == 'www.indeed.com'
-      IndeedUtils::extract_full_description(full_description_page, post_redirect_url, results_array)
+    if domain == 'www.indeed.com'
+      IndeedUtils::extract_full_description(full_description_page, url_after_redirect, results_array)
+      puts "   ...Storing Indeed contents of: #{url_after_redirect}"
     else
-      array_of_redirections << post_redirect_url
+      array_of_redirections << url_after_redirect
+      puts "\t...Saved to array_of_redirections: #{url_after_redirect}"
     end
-    # IndeedDB::insert_in_depth_listings(DB, TABLE, columns_arr)
-    puts "\t...Success, saved to database"
+
   ensure
     sleep 2.0 + rand
-  end  # done: begin/rescue
-  binding.pry
+  end
 end
+
 
 # Will have to clean array of hashes from empty strings
 # results_array.map {|hash| hash unless hash[:description].empty?  }.compact
 
-# Do DB stuff down here
+p "Results array is of size: #{results_array.size}"
+p "array_of_redirections is of size: #{array_of_redirections.size}"
 
-p array_of_redirections.size
 
-# TODO: Redirections save to extract_full_description as empty strings.
+# DB stuff
+results_array.each do |record|
+  IndeedDB::insert_in_depth_listings(DB, TABLE, record)
+end
+p "Saved #{results_array.count} items to #{DBNAME}.#{TABLE}"

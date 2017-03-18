@@ -23,7 +23,8 @@ module IndeedUtils
     :title => html_page.css('div[data-tn-component=jobHeader] b.jobtitle').inner_text,
     :company => html_page.css('div[data-tn-component=jobHeader] span.company').inner_text,
     :location => html_page.css('div[data-tn-component=jobHeader] span.location').inner_text,
-    :description => html_page.css('span#job_summary').inner_text
+    :description => html_page.css('span#job_summary').inner_text,
+    :url => url
     # binding.pry
   }
     # [job_title, company, location, job_summary, url, junior_or_senior(job_title)]
@@ -45,13 +46,17 @@ end
 
 
 module IndeedDB
-  def self.insert_in_depth_listings(db, table, columns)
-    insert_query = "INSERT INTO #{table}(job_title, company, location, job_summary, listing_url,  junior_flag) VALUES(?, ?, ?, ? ,? ,?)"
-    db.execute(insert_query, columns[0], columns[1], columns[2], columns[3], columns[4], columns[5])
+  def self.insert_in_depth_listings(db, table, hash)
+    insert_query = "INSERT INTO #{table}(title, company, location, description, url) VALUES(?, ?, ?, ?, ?)"
+    db.execute(insert_query, hash[:title], hash[:company], hash[:location], hash[:description], hash[:url])
   end
 
   def self.insert_postings(db, table, hash)
     insert_query = "INSERT INTO #{table}(job_title, company, location, job_summary, junior_flag) VALUES(?, ?, ? ,? ,?)"
     db.execute(insert_query, hash[:title], hash[:company], hash[:location], hash[:summary], hash[:junior_flag])
+  end
+
+  def self.save_redirects()
+    
   end
 end
