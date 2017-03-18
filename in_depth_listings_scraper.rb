@@ -80,13 +80,8 @@ url_list.each do |url|
   end
 end
 
-
-# Will have to clean array of hashes from empty strings
-# results_array.map {|hash| hash unless hash[:description].empty?  }.compact
-
 p "Results array is of size: #{results_array.size}"
 p "array_of_redirections is of size: #{array_of_redirections.size}"
-
 
 # DB stuff
 results_array.each do |record|
