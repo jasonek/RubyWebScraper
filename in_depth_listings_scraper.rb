@@ -12,7 +12,7 @@ DATA_DIR = "html_pages/indeed"
 TITLE_BLACK_LIST = ['senior', 'sr.', 'architect', 'lead', 'principal', 'staff']
 # DESCRIPTION_BLACK_LIST = ['3+ years']
 JOB_SEARCH = "Ruby developer"
-LOCATION = "San Francisco, CA"
+LOCATION = "Miami, FL"
 
 # Create URLs
 JOBTITLE_PARAM = URI.encode_www_form("q" => JOB_SEARCH)
@@ -54,24 +54,28 @@ p url_list.count
 
 # Iterate through every job link, following through to their full description page, to then extract the full description
 url_list.each do |url|
-  while results_array.size > 3 do
-    binding.pry
-  end
+
   job_description_url = BASE_INDEED_URL + url
   puts "Retrieving #{job_description_url} ..."
   begin
-    full_description_page = Nokogiri::HTML(open(job_description_url))
+    loop_agent = Mechanize.new
+    loop_page = loop_agent.get(job_description_url)
+    full_description_page = Nokogiri::HTML(loop_page.body)
+    binding.pry
+    # full_description_page = Nokogiri::HTML(open(job_description_url))
   rescue Exception => e
     array_of_redirections << e.to_s.partition('->')[-1] if e.class == RuntimeError # TODO redirections raise a RuntimeError, but so do other things. Need a better filter for redirections. Maybe check for Status: 302 ?
     puts "Error: #{e}"
     sleep 5
   else
-    IndeedUtils::extract_full_description(full_description_page, job_description_url, results_array)
+    p loop_page.uri.to_s
+    IndeedUtils::extract_full_description(full_description_page, loop_page.uri.to_s, results_array)
     # IndeedDB::insert_in_depth_listings(DB, TABLE, columns_arr)
     puts "\t...Success, saved to database"
   ensure
     sleep 2.0 + rand
   end  # done: begin/rescue
+  binding.pry
 end
 
 # Will have to clean array of hashes from empty strings
@@ -80,3 +84,5 @@ end
 # Do DB stuff down here
 
 p array_of_redirections.size
+
+# TODO: Redirections save to extract_full_description as empty strings.
