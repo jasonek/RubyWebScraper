@@ -61,15 +61,20 @@ url_list.each do |url|
     loop_agent = Mechanize.new
     loop_page = loop_agent.get(job_description_url)
     full_description_page = Nokogiri::HTML(loop_page.body)
+    post_redirect_url = loop_page.uri.to_s
+    domain = URI.parse(post_redirect_url).host
     binding.pry
     # full_description_page = Nokogiri::HTML(open(job_description_url))
   rescue Exception => e
-    array_of_redirections << e.to_s.partition('->')[-1] if e.class == RuntimeError # TODO redirections raise a RuntimeError, but so do other things. Need a better filter for redirections. Maybe check for Status: 302 ?
+    # array_of_redirections << e.to_s.partition('->')[-1] if e.class == RuntimeError # TODO redirections raise a RuntimeError, but so do other things. Need a better filter for redirections. Maybe check for Status: 302 ?
     puts "Error: #{e}"
     sleep 5
   else
-    p loop_page.uri.to_s
-    IndeedUtils::extract_full_description(full_description_page, loop_page.uri.to_s, results_array)
+    if host == 'www.indeed.com'
+      IndeedUtils::extract_full_description(full_description_page, post_redirect_url, results_array)
+    else
+      array_of_redirections << post_redirect_url
+    end
     # IndeedDB::insert_in_depth_listings(DB, TABLE, columns_arr)
     puts "\t...Success, saved to database"
   ensure
