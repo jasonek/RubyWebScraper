@@ -41,7 +41,6 @@ p url_list.count
 # Iterate through the pages
 url_list.each do |url|
   job_description_url = BASE_INDEED_URL + url
-  local_fname = "#{DATA_DIR}/#{File.basename(url)}.html"
   puts "Retrieving #{job_description_url} ..."
   begin
     content = Nokogiri::HTML(open(job_description_url))
