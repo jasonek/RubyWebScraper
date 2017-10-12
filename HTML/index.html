@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<!-- META -->
+	<title>Where are all the junior positions?</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="description" content="" />
+
+	<!-- CSS -->
+	<link rel="stylesheet" type="text/css" href="css/kickstart.css" media="all" />
+	<link rel="stylesheet" type="text/css" href="style.css" media="all" />
+
+	<!-- Javascript -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.bundle.min.js"></script>
+	<script type="text/javascript" src="js/kickstart.js"></script>
+	<script type="text/javascript" src="js/scripts.js"></script>
+</head>
+
+<body>
+	<div class="grid">
+		<div class="col_12">
+			<h1 class="center">Where are all the junior positions?</h1>
+			<h5 class="center subtitle">How cities differ in desired experience of developer candidates</h5>
+			<div id="graph">
+				<canvas id="myChart" width="100" height="100"></canvas>
+			</div>
+			<div>
+				<article>
+					<h5>Take-Aways</h5>
+					<p>One thing sticks out to me: There are substantially more open positions for mid-level developers than either other category.
+						<br>This proves wrong an assumption I held. A commonly held assumption is that every company has an opening for a senior developer, even companies that aren't actually trying to hire. The reasoning is that senior developers are so hard to find,
+						that companies sohuld always be receptive to hiring them. There is only one outlier market where there are more senior roles than mid, and that is Chicago. If I had to offer speculation, I would say it may be due to the algorithmic/high frequency
+						trading industry in Chicago, where a programmatic error can cost <a href="https://en.wikipedia.org/wiki/Knight_Capital_Group#2012_stock_trading_disruption">millions of dollars</a>. But I have not done the analysis to back that up.
+					</p>
+					<p>One other observation is that there are extremely few Junior/Entry level roles. I find it shocking that New York only has two, and that the SF Bay Area has none.
+					</p>
+				</article>
+				<article>
+					<h5>Steps involved in the creation of this page:</h5>
+					<ol>
+						<li> Wrote a Web Scraper in Ruby that searches Indeed.com for the job title "Ruby developer", constrained to jobs posted in the last 29 days</li>
+						<li> As part of the script, I saved the data that I extracted to a local SQLite database</li>
+						<li>
+							<ul>Used SQL to clean the dataset
+								<li>For example I removed Design and Marketing jobs and Internships. I also removed DevOps roles, a decision that was more difficult to make</li>
+								<li>I removed zip code numbers from the Location field, since a small percentage of Indeed listings show the zip code too</li>
+								<li>Also had to filter for uniqueness. The injected 'sponsored' job listings may reappear across different pages. Although this was minimized by specifying 100 results per page </li>
+							</ul>
+							<li id="fourth_step"> Brought into Excel for sanity check. Here I consolidated cities into greater metro regions, and removed some small results entirely</li>
+							<li> Finally, created a website with ChartJS, and got it hosted</li>
+					</ol>
+				</article>
+			</div>
+			<aside>
+				<h5>Source code for the web scraper is <a href="https://github.com/jasonek/RubyWebScraper">available on github:</a></h5>
+			</aside>
+		</div>
+	</div>
+	<footer>
+	</footer>
+
+	<!-- End Grid -->
+</body>
+
+</html>

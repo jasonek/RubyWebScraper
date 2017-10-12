@@ -1,0 +1,113 @@
+/*
+	99Lime.com HTML KickStart by Joshua Gatcke
+	style.css
+
+*/
+
+
+/*---------------------------------
+	IMPORTS
+-----------------------------------*/
+
+@import url(https://fonts.googleapis.com/css?family=Arimo:400,700);
+
+/*---------------------------------
+	OVERRIDES
+-----------------------------------*/
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Arimo", arial, verdana, sans-serif;
+    font-weight: normal;
+}
+
+thead th, tbody th {
+    font-family: "Arimo", arial, verdana, sans-serif;
+}
+
+button, a.btn, input[type="submit"], input[type="reset"], input[type="button"] {
+    font-family: "Arimo", arial, verdana, sans-serif;
+}
+
+.menu {
+    font-family: "Arimo", arial, verdana, sans-serif;
+}
+
+blockquote {
+    font-family: "Arimo", arial, verdana, sans-serif;
+}
+
+
+/*---------------------------------
+	LAYOUT
+-----------------------------------*/
+li ul {
+	margin-left: -1px;
+	margin-bottom: -10px;
+}
+
+li ul li {
+	margin-left: 20px;
+}
+
+div#graph {
+  width: 70%;
+	margin-left: 5em;
+}
+.subtitle {
+	color: #999;
+	margin-bottom:30px
+}
+
+article {
+  margin-top: 5em;
+}
+
+aside {
+margin-top: 5em;
+margin-bottom: 10em;
+}
+
+body {
+    margin: 0;
+    padding: 0 0 0 0;
+    color: #000;
+    font: normal 0.9em/150% 'Arimo', arial, verdana, sans-serif;
+    text-shadow: 0 0 1px transparent;
+    /* google font pixelation fix */
+}
+
+#wrap {
+    width: 100%;
+    background: #fff;
+    margin: 30px auto 30px auto;
+    padding: 0 2%;
+    border: 1px solid #ccc;
+}
+
+#footer {
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+    border-top: 1px solid #ddd;
+    color: #999;
+    font-size: 0.8em;
+    text-shadow: 0px 1px 1px #fff;
+    position: relative;
+    top: 0;
+    left: 0;
+    background: #fff;
+}
+
+#link-top {
+    display: none;
+}
+
+#mc_embed_signup {
+    padding: 30px 0;
+}
+
+#ui-preview {
+    border: 5px solid #ddd;
+    margin: 30px 0;
+    display: block;
+}
