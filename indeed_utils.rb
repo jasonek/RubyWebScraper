@@ -1,6 +1,9 @@
 module IndeedUtils
-  def self.create_url_array(nodeset) # Collect URLs of jobs whose titles pass the Black List Filter
-    nodeset.map { |job| job["href"] }#unless black_list.any? { |bad_word| job["title"].downcase.include?(bad_word) }
+  def self.create_url_array(nodeset,array, black_list) # Collect URLs of jobs whose titles pass the Black List Filter
+    # nodeset.map { |job| job["href"] }#unless black_list.any? { |bad_word| job["title"].downcase.include?(bad_word) }
+    nodeset.each do |job|
+      array << job["href"] unless black_list.any? { |bad_word| job["title"].downcase.include?(bad_word) }
+    end
   end
 
   def self.extract_listing_data(nodeset, array)
@@ -15,13 +18,16 @@ module IndeedUtils
     end
   end
 
-  def self.extract_data_from_indeed(html_page, file_name, url) # specific to Indeed.com
-    job_title = html_page.css('div[data-tn-component=jobHeader] b.jobtitle').inner_text
-    company = html_page.css('div[data-tn-component=jobHeader] span.company').inner_text
-    location = html_page.css('div[data-tn-component=jobHeader] span.location').inner_text
-    job_summary = html_page.css('span#job_summary').inner_text
-
-    [job_title, company, location, job_summary, url, junior_or_senior(job_title)]
+  def self.extract_full_description(html_page, url, array)
+    array << {
+    :title => html_page.css('div[data-tn-component=jobHeader] b.jobtitle').inner_text,
+    :company => html_page.css('div[data-tn-component=jobHeader] span.company').inner_text,
+    :location => html_page.css('div[data-tn-component=jobHeader] span.location').inner_text,
+    :description => html_page.css('span#job_summary').inner_text,
+    :url => url
+    # binding.pry
+  }
+    # [job_title, company, location, job_summary, url, junior_or_senior(job_title)]
   end
 
   def self.junior_or_senior(title)
@@ -40,13 +46,17 @@ end
 
 
 module IndeedDB
-  def self.insert_in_depth_listings(db, table, columns)
-    insert_query = "INSERT INTO #{table}(job_title, company, location, job_summary, listing_url,  junior_flag) VALUES(?, ?, ?, ? ,? ,?)"
-    db.execute(insert_query, columns[0], columns[1], columns[2], columns[3], columns[4], columns[5])
+  def self.insert_in_depth_listings(db, table, hash)
+    insert_query = "INSERT INTO #{table}(title, company, location, description, url) VALUES(?, ?, ?, ?, ?)"
+    db.execute(insert_query, hash[:title], hash[:company], hash[:location], hash[:description], hash[:url])
   end
 
   def self.insert_postings(db, table, hash)
     insert_query = "INSERT INTO #{table}(job_title, company, location, job_summary, junior_flag) VALUES(?, ?, ? ,? ,?)"
     db.execute(insert_query, hash[:title], hash[:company], hash[:location], hash[:summary], hash[:junior_flag])
+  end
+
+  def self.save_redirects()
+    
   end
 end
